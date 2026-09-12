@@ -1,9 +1,13 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Project Overview & Guidelines
 
-# This is NOT the Next.js you know
+## Stack
+- **Framework:** Next.js (App Router)
+- **Language:** JavaScript (ES6+) — *No TypeScript*
+- **Styling:** Tailwind CSS
+- **Code Quality:** ESLint
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+## Code Rules
+- Use functional React components (`export default function ComponentName() {}`).
+- Utilize Tailwind CSS for styling directly within JSX.
+- Maintain a clean folder structure inside `app/` (or `src/app/`).
+- Do not introduce TypeScript files (`.ts` / `.tsx`); stick to `.js` and `.jsx`.
