@@ -1,12 +1,17 @@
+import { SITE_NAME } from "@/lib/seo";
+
 export default function manifest() {
   return {
-    name: "SbS Industrial & B2B",
+    name: SITE_NAME,
     short_name: "SbS",
-    description: "India's leading B2B marketplace for industrial products",
+    description: "India's B2B marketplace for industrial, safety & engineering supplies.",
     start_url: "/",
     display: "standalone",
-    background_color: "#1B2B4B",
-    theme_color: "#1B2B4B",
-    icons: [{ src: "/favicon.ico", sizes: "any", type: "image/x-icon" }],
+    background_color: "#f1f3f6",
+    theme_color: "#1b2b4b",
+    icons: [
+      { src: "/icon", sizes: "32x32", type: "image/png" },
+      { src: "/apple-icon", sizes: "180x180", type: "image/png" },
+    ],
   };
 }

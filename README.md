@@ -1,58 +1,36 @@
-# SbS Industrial - Next.js Component Based Homepage
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-This project converts your single HTML file into a **production-ready, SEO-optimized, reusable Next.js App Router** structure.
+## Getting Started
 
-## Why this is better (lighter & smarter)
+First, run the development server:
 
-- **No CDN Tailwind**: Uses Tailwind v4 via PostCSS, purged in production = 90% smaller CSS.
-- **No inline <script>**: All JS is React state, no global variables.
-- **next/font**: Outfit + Inter loaded with `display:swap`, self-hosted, no external request.
-- **Reusable components**: `ProductCard`, `SectionGrid`, `CategorySection`, `BrandStrip` etc.
-- **Contexts**: `CartContext` and `LocationContext` instead of global `let cart=[]`.
-- **SEO**: 
-  - `metadataBase`, `title.template`, `openGraph`, `twitter`, `robots`, `sitemap.xml`, `manifest.json`
-  - JSON-LD Organization + WebSite with SearchAction
-  - Semantic headings (h1 for hero, h2 for sections), alt tags, canonical
-- **Performance**: lazy images, client components only where needed, static server components for grids.
-
-## Folder Structure (easy to learn)
-
-```
-src/
-  app/
-    layout.js    -> fonts, metadata, JSON-LD, providers
-    page.js      -> assembles homepage
-    globals.css  -> Tailwind + custom animations
-    sitemap.js / robots.js / manifest.js -> SEO
-  lib/
-    data.js      -> ALL data: categories, products, hero slides (edit here)
-    utils.js     -> formatINR etc.
-  components/
-    layout/
-      Header.jsx, TopTicker.jsx, MegaMenu.jsx, Footer.jsx
-      CartContext.jsx, LocationContext.jsx
-    ui/
-      ProductCard.jsx, ToastProvider.jsx
-    home/
-      HeroSlider.jsx, TrustBadges.jsx, SectionGrid.jsx, CategorySection.jsx, BrandAndBanners.jsx
-    modals/
-      CartDrawer.jsx, LocationModal.jsx
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## How to add a new category
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-1. Open `src/lib/data.js`
-2. Add to `CATEGORIES` and create product array
-3. Add to `SECTIONS` - homepage auto renders it.
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-## SEO checklist included
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- Meta title (60 chars) + description (155 chars)
-- OG image 1200x630
-- Twitter large card
-- Canonical
-- JSON-LD
-- robots.txt + sitemap.xml
-- themeColor #1B2B4B
-- Alt tags on all product images
-- Structured headings
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

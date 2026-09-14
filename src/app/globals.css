@@ -1,33 +1,215 @@
 @import "tailwindcss";
-:root { --primary: #FF6B35; --primary-dark: #E85A20; --navy: #1B2B4B; --navy-light: #2A4070; --accent: #F59E0B; --page: #F1F3F6; }
-@theme inline { --color-primary: var(--primary); --color-primarydark: var(--primary-dark); --color-navy: var(--navy); --color-navylight: var(--navy-light); --color-accent: var(--accent); --color-page: var(--page); --font-display: var(--font-outfit); --font-body: var(--font-inter); }
-html, body { font-family: var(--font-inter), Inter, sans-serif; background: #F1F3F6; }
-.font-display { font-family: var(--font-outfit), Outfit, sans-serif; }
-* { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-@keyframes slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-.dropdown-animate { animation: slide-in .15s ease; }
-@keyframes slide-left { from { transform: translateX(100%); } to { transform: translateX(0); } }
-.drawer-animate { animation: slide-left .25s ease; }
-@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.ticker-inner { animation: ticker 30s linear infinite; }
-@keyframes pop { 0% { transform: scale(.9); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
-.pop-animate { animation: pop .2s ease; }
-.product-card:hover .product-img { transform: scale(1.05); }
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.soc-btn { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,.08); color: #cbd5e1; transition: all .18s ease; border: 1px solid rgba(255,255,255,.08); }
-.soc-btn:hover { transform: translateY(-2px); color: #fff; }
-.soc-btn svg { width: 18px; height: 18px; fill: currentColor; }
-.soc-btn.soc-fb:hover { background: #1877F2; border-color: #1877F2; }
-.soc-btn.soc-ig:hover { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color: #dc2743; }
-.soc-btn.soc-x:hover { background: #000; border-color: #000; }
-.soc-btn.soc-li:hover { background: #0A66C2; border-color: #0A66C2; }
-.soc-btn.soc-yt:hover { background: #FF0000; border-color: #FF0000; }
-.soc-btn.soc-wa:hover { background: #25D366; border-color: #25D366; }
-.soc-btn.soc-tg:hover { background: #229ED9; border-color: #229ED9; }
-.foot-col-title { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; margin-bottom: 12px; }
-.foot-link { display: block; font-size: 12px; color: #94a3b8; padding: 4px 0; transition: color .15s; text-align: left; }
-.foot-link:hover { color: #FF6B35; }
+
+/*
+ * Design tokens for the SbS Industrial & B2B storefront.
+ * These map 1:1 to the colors/fonts that used to live in the
+ * inline `tailwind.config` script on the old static HTML page.
+ */
+@theme inline {
+  --color-primary: #ff6b35;
+  --color-primarydark: #e85a20;
+  --color-navy: #1b2b4b;
+  --color-navylight: #2a4070;
+  --color-accent: #f59e0b;
+  --color-page: #f1f3f6;
+
+  --font-display: var(--font-outfit), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-body);
+  background: var(--color-page);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dropdown-animate {
+  animation: slide-in 0.15s ease;
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.ticker-inner {
+  animation: ticker 30s linear infinite;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pop-animate {
+  animation: pop 0.2s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mega-col.active {
+  background: #fff6f2;
+  border-radius: 12px;
+}
+.mega-col.active .mega-head {
+  color: #ff6b35;
+}
+
+.auth-input:focus,
+.orn-input:focus,
+.otp-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+}
+
+/* Social icon buttons in the footer */
+.soc-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  transition: all 0.18s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.soc-btn:hover {
+  transform: translateY(-2px);
+  color: #fff;
+}
+.soc-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.soc-btn.soc-fb:hover {
+  background: #1877f2;
+  border-color: #1877f2;
+}
+.soc-btn.soc-ig:hover {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  border-color: #dc2743;
+}
+.soc-btn.soc-x:hover {
+  background: #000;
+  border-color: #000;
+}
+.soc-btn.soc-li:hover {
+  background: #0a66c2;
+  border-color: #0a66c2;
+}
+.soc-btn.soc-yt:hover {
+  background: #ff0000;
+  border-color: #ff0000;
+}
+.soc-btn.soc-wa:hover {
+  background: #25d366;
+  border-color: #25d366;
+}
+.soc-btn.soc-tg:hover {
+  background: #229ed9;
+  border-color: #229ed9;
+}
+
+/* Footer link columns */
+.foot-col-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.foot-link {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  padding: 4px 0;
+  transition: color 0.15s;
+  text-align: left;
+}
+.foot-link:hover {
+  color: #ff6b35;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-inner,
+  .dropdown-animate,
+  .pop-animate,
+  .product-card:hover .product-img {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+
+.checkout-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.checkout-input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+}

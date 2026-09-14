@@ -1,6 +1,11 @@
+import { SITE_URL } from "@/lib/seo";
+
 export default function robots() {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/admin/"] },
-    sitemap: "https://www.sbsindustrial.com/sitemap.xml",
+    rules: {
+      userAgent: "*",
+      allow: "/",
+    },
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

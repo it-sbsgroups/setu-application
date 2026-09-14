@@ -1,42 +1,33 @@
-import Header from "@/components/layout/Header";
-import MegaMenu from "@/components/layout/MegaMenu";
-import Footer from "@/components/layout/Footer";
-import HeroSlider from "@/components/home/HeroSlider";
+import Hero from "@/components/home/Hero";
 import TrustBadges from "@/components/home/TrustBadges";
-import SectionGrid from "@/components/home/SectionGrid";
+import ProductGrid from "@/components/home/ProductGrid";
+import MidBanners from "@/components/home/MidBanners";
+import BrandStrip from "@/components/home/BrandStrip";
 import CategorySection from "@/components/home/CategorySection";
-import { BrandStrip, MidBanners } from "@/components/home/BrandAndBanners";
-import CartDrawer from "@/components/modals/CartDrawer";
-import LocationModal from "@/components/modals/LocationModal";
-import { SECTIONS, TRENDING, LATEST } from "@/lib/data";
-
-export const metadata = {
-  title: "SbS Industrial & B2B Marketplace - Home | 10 Lakh+ Industrial Products",
-  description: "Shop power tools, safety & PPE, electrical, hand tools, plumbing, fasteners, abrasives, welding, material handling, IT & office supplies. Same-day dispatch, GST invoice, bulk pricing.",
-  openGraph: {
-    title: "SbS Industrial & B2B Marketplace",
-    description: "India's leading B2B industrial marketplace - 10 lakh+ products, same-day dispatch.",
-  }
-};
+import HomeBottomSection from "@/components/home/bottom/HomeBottomSection"; // ← NEW
+import { SECTIONS, TRENDING, LATEST } from "@/lib/data/products";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#F1F3F6]">
-      <Header />
-      <MegaMenu />
-      <main>
-        <HeroSlider />
+    <>
+      <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6">
+        <Hero />
         <TrustBadges />
-        <SectionGrid title="🆕 New Launches & Latest Updates" subtitle="Fresh arrivals from top brands — be the first to order" products={LATEST} />
-        <SectionGrid title="🔥 Trending in Your Area" subtitle="Products flying off shelves near you this week" products={TRENDING} dark />
+
+        <ProductGrid eyebrow="JUST LANDED" title="🆕 New Launches" subtitle="Fresh stock from top industrial brands, added this week" products={LATEST} viewAllHref="/new-arrivals" />
+
+        <div className="rounded-xl p-5" style={{ background: "linear-gradient(135deg,#1B2B4B 0%,#2A4070 100%)" }}>
+          <ProductGrid eyebrow="TRENDING NOW" title="🔥 Trending in Your Area" subtitle="What businesses near you are buying the most" products={TRENDING} dark accentClassName="text-orange-400" viewAllHref="/deals" />
+        </div>
+
         <MidBanners />
         <BrandStrip />
-        {/* 10 Category Sections - component based, reusable */}
-        {SECTIONS.map(sec => <CategorySection key={sec.name} section={sec} />)}
-      </main>
-      <Footer />
-      <CartDrawer />
-      <LocationModal />
-    </div>
+      </div>
+
+      {SECTIONS.map((section) => (
+        <CategorySection key={section.name} section={section} />
+      ))}
+      <HomeBottomSection />
+    </>
   );
 }
