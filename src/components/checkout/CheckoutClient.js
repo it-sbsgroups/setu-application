@@ -6,100 +6,142 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { placeOrder } from "@/lib/checkoutApi";
+import {
+  sendQuotationEmail,
+  resendQuotationEmail,
+  downloadQuotation,
+  createNegotiationTicket,
+  lockNegotiatedPrice,
+  confirmOrder,
+  quotationTotal,
+} from "@/lib/checkoutApi";
 
 import Stepper from "@/components/checkout/Stepper";
-import AddressStep from "@/components/checkout/AddressStep";
-import PaymentStep from "@/components/checkout/PaymentStep";
-import ReviewStep from "@/components/checkout/ReviewStep";
+import QuoteDetailsStep from "@/components/checkout/QuoteDetailsStep";
+import EmailSentScreen from "@/components/checkout/EmailSentScreen";
 import OrderSummary from "@/components/checkout/OrderSummary";
-import OrderSuccess from "@/components/checkout/OrderSuccess";
+import OrderPlacedScreen from "@/components/checkout/OrderPlacedScreen";
+import NegotiationScreen from "@/components/checkout/NegotiationScreen";
+import {
+  ReceivedCheckModal,
+  PriceSatisfactionModal,
+  NegotiationModal,
+  ConfirmOrderModal,
+  LockedPriceModal,
+} from "@/components/checkout/QuotationModals";
+
+const STAGES = {
+  DETAILS: "details",
+  RECEIVED_CHECK: "received-check",
+  PRICE_SAT: "price-sat",
+  CONFIRM: "confirm",
+  NEGOTIATION: "negotiation",
+  CHAT: "chat",
+  TELEPHONIC: "telephonic",
+  LOCKED_PRICE: "locked-price",
+  PLACED: "placed",
+};
 
 export default function CheckoutClient() {
   const router = useRouter();
-  const { lines, count, subtotal, clearCart } = useCart();
+  const { lines, count, clearCart } = useCart();
   const { user } = useAuth();
   const { openLogin, showToast } = useUI();
 
-  const [step, setStep] = useState("address");
+  const [stage, setStage] = useState(STAGES.DETAILS);
   const [address, setAddress] = useState(null);
-  const [payment, setPayment] = useState(null);
-  const [placing, setPlacing] = useState(false);
+  const [contact, setContact] = useState(null);
+  const [quote, setQuote] = useState(null);
+  const [ticket, setTicket] = useState(null);
+  const [locked, setLocked] = useState(null);
   const [order, setOrder] = useState(null);
+  const [sending, setSending] = useState(false);
 
-  // Redirect to home if cart is empty and no order was just placed.
-  useEffect(() => {
-    if (count === 0 && !order) {
-      router.replace("/");
-    }
-  }, [count, order, router]);
-
-  // Auth gate — auto-open login modal once if user lands here unauthenticated.
+  // Auth gate
   useEffect(() => {
     if (!user) {
-      showToast("Please login to continue to checkout");
+      showToast("Please login to request a quotation");
       openLogin();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
-  async function handlePlaceOrder() {
-    if (!address || !payment) return;
-    setPlacing(true);
+  // Empty-cart guard (except when we've just placed the order)
+  useEffect(() => {
+    if (count === 0 && !order) router.replace("/");
+  }, [count, order, router]);
+
+  /* ── handlers ─────────────────────────────────────────────── */
+
+  async function handleDetailsSubmit({ address: a, contact: c }) {
+    setAddress(a);
+    setContact(c);
+    setSending(true);
     try {
-      const placed = await placeOrder({
-        lines,
-        subtotal,
-        address,
-        payment,
-      });
-      // Set order BEFORE clearing cart so the empty-cart redirect doesn't fire.
-      setOrder(placed);
-      clearCart();
-      showToast("Order placed successfully!");
+      const q = await sendQuotationEmail({ lines, contact: c, address: a });
+      setQuote(q);
+      setStage(STAGES.RECEIVED_CHECK);
+      showToast(`Quotation emailed to ${c.email}`);
     } catch {
-      showToast("Could not place order. Please try again.");
+      showToast("Could not send quotation. Please retry.");
     } finally {
-      setPlacing(false);
+      setSending(false);
     }
   }
 
-  // Success view
-  if (order) {
-    return <OrderSuccess order={order} address={address} payment={payment} />;
+  async function handleResend() {
+    if (!quote) return;
+    await resendQuotationEmail(quote.quoteId);
+    showToast(`Quotation resent to ${contact.email}`);
   }
 
-  // Not logged in — show a login gate.
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-3xl">
-          🔐
-        </div>
-        <h1 className="font-display text-xl font-black text-gray-900">
-          Login required to checkout
-        </h1>
-        <p className="mt-2 text-sm text-gray-500">
-          Please sign in to continue with your order. Your cart will be saved.
-        </p>
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <button
-            type="button"
-            onClick={openLogin}
-            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primarydark"
-          >
-            Login / Sign Up
-          </button>
-          <Link
-            href="/"
-            className="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    );
+  function handleDownload() {
+    if (!quote) return;
+    downloadQuotation({ lines, address, contact, quote });
+    showToast("Quotation downloaded");
   }
+
+  async function handleNegotiationStart(mode) {
+    const t = await createNegotiationTicket({ quoteId: quote.quoteId, mode });
+    setTicket(t);
+    setStage(mode === "chat" ? STAGES.CHAT : STAGES.TELEPHONIC);
+  }
+
+  async function handlePriceLocked() {
+    const l = await lockNegotiatedPrice({ lines });
+    setLocked(l);
+    setStage(STAGES.LOCKED_PRICE);
+    showToast("Price locked — please review and confirm");
+  }
+
+  async function handleConfirm(method) {
+    const total = locked ? locked.total : quotationTotal(lines);
+    const res = await confirmOrder({
+      quoteId: quote.quoteId,
+      method,
+      lockedTotal: total,
+    });
+    setOrder(res);
+    clearCart();
+    setStage(STAGES.PLACED);
+    showToast("Order confirmed successfully!");
+  }
+
+  /* ── render gates ─────────────────────────────────────────── */
+
+  if (!user) return <AuthGate onLogin={openLogin} />;
+  if (order) return <OrderPlacedScreen order={order} address={address} contact={contact} locked={locked} lines={lines} />;
+
+  const isModalStage = [
+    STAGES.RECEIVED_CHECK,
+    STAGES.PRICE_SAT,
+    STAGES.CONFIRM,
+    STAGES.NEGOTIATION,
+    STAGES.LOCKED_PRICE,
+  ].includes(stage);
+
+  const isChat = stage === STAGES.CHAT;
+  const isTelephonic = stage === STAGES.TELEPHONIC;
 
   return (
     <div className="mx-auto max-w-screen-2xl px-4 py-6">
@@ -108,43 +150,43 @@ export default function CheckoutClient() {
           href="/"
           className="mb-3 inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-primary"
         >
-          ← Continue shopping
+          ← Continue browsing
         </Link>
-        <Stepper current={step} />
+        <Stepper stage={stage} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="order-2 space-y-4 lg:order-1">
-          {step === "address" && (
-            <AddressStep
-              initial={address}
-              onContinue={(a) => {
-                setAddress(a);
-                setStep("payment");
-              }}
+          {stage === STAGES.DETAILS && (
+            <QuoteDetailsStep
+              initial={
+                address || contact
+                  ? {
+                      ...(address || {}),
+                      ...(contact?.email ? { email: contact.email } : {}),
+                      ...(contact?.contactPref ? { contactPref: contact.contactPref } : {}),
+                    }
+                  : undefined
+              }
+              submitting={sending}
+              onSubmit={handleDetailsSubmit}
             />
           )}
-          {step === "payment" && (
-            <PaymentStep
-              initial={payment}
-              subtotal={subtotal}
-              onBack={() => setStep("address")}
-              onContinue={(p) => {
-                setPayment(p);
-                setStep("review");
-              }}
+          {isModalStage && <EmailSentScreen contact={contact} quote={quote} />}
+          {isChat && (
+            <NegotiationScreen
+              mode="chat"
+              ticket={ticket}
+              onPriceLocked={handlePriceLocked}
+              onCancel={() => setStage(STAGES.NEGOTIATION)}
             />
           )}
-          {step === "review" && (
-            <ReviewStep
-              address={address}
-              payment={payment}
-              lines={lines}
-              onBack={() => setStep("payment")}
-              onEditAddress={() => setStep("address")}
-              onEditPayment={() => setStep("payment")}
-              onPlaceOrder={handlePlaceOrder}
-              placing={placing}
+          {isTelephonic && (
+            <NegotiationScreen
+              mode="telephonic"
+              ticket={ticket}
+              onPriceLocked={handlePriceLocked}
+              onCancel={() => setStage(STAGES.NEGOTIATION)}
             />
           )}
         </div>
@@ -152,6 +194,70 @@ export default function CheckoutClient() {
         <div className="order-1 lg:order-2">
           <OrderSummary />
         </div>
+      </div>
+
+      {/* ── Modals (only the one matching the current stage opens) ── */}
+      <ReceivedCheckModal
+        open={stage === STAGES.RECEIVED_CHECK}
+        email={contact?.email}
+        onYes={() => setStage(STAGES.PRICE_SAT)}
+        onResend={handleResend}
+        onDownload={handleDownload}
+      />
+      <PriceSatisfactionModal
+        open={stage === STAGES.PRICE_SAT}
+        onYes={() => setStage(STAGES.CONFIRM)}
+        onNo={() => setStage(STAGES.NEGOTIATION)}
+      />
+      <NegotiationModal
+        open={stage === STAGES.NEGOTIATION}
+        onChoose={handleNegotiationStart}
+      />
+      <ConfirmOrderModal
+        open={stage === STAGES.CONFIRM}
+        email={contact?.email}
+        lines={lines}
+        onConfirm={handleConfirm}
+      />
+      <LockedPriceModal
+        open={stage === STAGES.LOCKED_PRICE}
+        locked={locked}
+        email={contact?.email}
+        lines={lines}
+        onConfirm={handleConfirm}
+      />
+    </div>
+  );
+}
+
+/* ── inline subcomponents ─────────────────────────────────── */
+
+function AuthGate({ onLogin }) {
+  return (
+    <div className="mx-auto max-w-md px-4 py-20 text-center">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-3xl">
+        🔐
+      </div>
+      <h1 className="font-display text-xl font-black text-gray-900">
+        Login required to request a quotation
+      </h1>
+      <p className="mt-2 text-sm text-gray-500">
+        Please sign in to continue. Your enquiry list is saved.
+      </p>
+      <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <button
+          type="button"
+          onClick={onLogin}
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primarydark"
+        >
+          Login / Sign Up
+        </button>
+        <Link
+          href="/"
+          className="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+        >
+          Back to Home
+        </Link>
       </div>
     </div>
   );

@@ -31,10 +31,63 @@ export const PAYMENT_METHODS = [
   },
 ];
 
+export const CONTACT_PREFERENCES = [
+  { id: "email", icon: "✉️", label: "Email" },
+  { id: "phone", icon: "📞", label: "Phone" },
+  { id: "whatsapp", icon: "💬", label: "WhatsApp" },
+];
+
+export const NEGOTIATION_CHANNELS = [
+  {
+    id: "chat",
+    icon: "💬",
+    title: "Chat with our experts",
+    sub: "Instant messaging with a pricing specialist",
+  },
+  {
+    id: "telephonic",
+    icon: "📞",
+    title: "Talk on the phone",
+    sub: "Get a ticket & a callback from our team",
+  },
+];
+
+export const CONFIRM_METHODS = [
+  {
+    id: "otp",
+    icon: "🔐",
+    title: "Acknowledge via Email OTP",
+    sub: "Quick verification on your registered email",
+  },
+  {
+    id: "po",
+    icon: "📄",
+    title: "Send Legal Purchase Order",
+    sub: "Upload your signed PO (PDF, JPEG, PNG)",
+  },
+];
+
 export const ADDRESS_TYPES = ["Home", "Office", "Factory", "Warehouse"];
 
+/**
+ * Stepper shows the *macro* milestones — not every sub-stage — so users
+ * don't get confused by the negotiation loop feeling like "going back".
+ */
 export const CHECKOUT_STEPS = [
-  { id: "address", label: "Address" },
-  { id: "payment", label: "Payment" },
+  { id: "details", label: "Details" },
+  { id: "quotation", label: "Quotation" },
   { id: "review", label: "Review" },
+  { id: "confirm", label: "Confirm" },
 ];
+
+/** Maps each internal stage → index into CHECKOUT_STEPS. */
+export const STAGE_TO_STEP = {
+  details: 0,
+  "received-check": 1,
+  "price-sat": 2,
+  negotiation: 2,
+  chat: 2,
+  telephonic: 2,
+  confirm: 3,
+  "locked-price": 3,
+};

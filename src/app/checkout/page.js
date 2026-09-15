@@ -1,8 +1,9 @@
 import CheckoutClient from "@/components/checkout/CheckoutClient";
 
 export const metadata = {
-  title: "Secure Checkout",
-  description: "Complete your industrial supplies order securely.",
+  title: "Request Quotation",
+  description:
+    "Request a B2B quotation for industrial, safety and engineering supplies.",
   robots: { index: false, follow: false },
 };
 

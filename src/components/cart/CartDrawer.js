@@ -15,6 +15,14 @@ export default function CartDrawer() {
   const router = useRouter();
   const open = overlay === "cart";
 
+  // Total quoted = highest of the price range across all lines.
+  // (Buyer-facing "quotation value"; the actual negotiated total is
+  // computed later inside the checkout flow.)
+  const quotedTotal = lines.reduce(
+    (sum, l) => sum + l.product.orig * l.qty,
+    0
+  );
+
   function handleStartShopping() {
     closeOverlay();
     setTimeout(() => {
@@ -25,15 +33,14 @@ export default function CartDrawer() {
   }
 
   /**
-   * Auth-gated checkout. If the user isn't logged in, close the drawer,
-   * open the login modal, and show a toast explaining why. Once logged in,
-   * the user can re-open the cart and proceed — or click "Proceed to
-   * Checkout" again from wherever they are.
+   * Auth-gated quotation request. If the user isn't logged in, close the
+   * drawer, open the login modal, and toast an explanation. Cart is not
+   * cleared — the user returns to the same enquiry list after login.
    */
-  function handleProceedToCheckout() {
+  function handleRequestQuotation() {
     if (!user) {
       closeOverlay();
-      showToast("Please login to continue to checkout");
+      showToast("Please login to request a quotation");
       openLogin();
       return;
     }
@@ -43,6 +50,7 @@ export default function CartDrawer() {
 
   return (
     <>
+      {/* Backdrop */}
       <div
         className={`fixed inset-0 z-[65] bg-black/50 transition-opacity ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
@@ -50,50 +58,58 @@ export default function CartDrawer() {
         onClick={closeOverlay}
         aria-hidden="true"
       />
+
+      {/* Drawer */}
       <aside
         className={`fixed bottom-0 right-0 top-0 z-[66] flex w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-modal="true"
-        aria-label="Shopping cart"
+        aria-label="Enquiry list"
       >
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
           <div>
-            <h3 className="font-display text-lg font-black text-gray-900">Your Cart</h3>
+            <h3 className="font-display text-lg font-black text-gray-900">
+              Your Enquiry List
+            </h3>
             <p className="text-xs text-gray-400">
-              {count === 0 ? "0 items" : `${count} item${count > 1 ? "s" : ""}`}
+              {count === 0
+                ? "0 items"
+                : `${count} item${count > 1 ? "s" : ""}`}
             </p>
           </div>
           <button
             type="button"
             onClick={closeOverlay}
-            aria-label="Close cart"
+            aria-label="Close enquiry list"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"
           >
             ✕
           </button>
         </div>
 
+        {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {lines.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center py-16 text-center">
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-orange-50 text-4xl">
-                🛒
+                📋
               </div>
               <h4 className="font-display mb-1 font-bold text-gray-800">
-                Your cart is empty
+                Your enquiry list is empty
               </h4>
-              <p className="mb-5 max-w-[220px] text-xs text-gray-400">
-                Looks like you haven&apos;t added anything yet. Start exploring
-                our top industrial picks.
+              <p className="mb-5 max-w-[240px] text-xs text-gray-400">
+                Add products you&apos;d like a quotation for, and our pricing
+                team will email you the best offer.
               </p>
               <button
                 type="button"
                 onClick={handleStartShopping}
                 className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primarydark"
               >
-                Start Shopping
+                Start Browsing
               </button>
             </div>
           ) : (
@@ -115,18 +131,24 @@ export default function CartDrawer() {
                     className="h-16 w-16 rounded-lg bg-gray-50 object-cover"
                   />
                 </Link>
+
                 <div className="min-w-0 flex-1">
-                  <Link href={`/product/${product.id}`} onClick={closeOverlay}>
+                  <Link
+                    href={`/product/${product.id}`}
+                    onClick={closeOverlay}
+                  >
                     <p className="line-clamp-2 mb-1 text-xs leading-snug text-gray-800 hover:text-primary">
                       {product.name}
                     </p>
                   </Link>
+
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    Price range
+                    Indicative price range
                   </p>
                   <p className="mb-2 text-xs font-bold text-gray-900">
                     {formatPriceRange(product)}
                   </p>
+
                   <div className="flex items-center gap-2">
                     <div className="flex items-center overflow-hidden rounded-lg border border-gray-200">
                       <button
@@ -149,18 +171,20 @@ export default function CartDrawer() {
                         +
                       </button>
                     </div>
+
                     <button
                       type="button"
                       onClick={() => {
                         removeItem(product.id);
-                        showToast("Item removed");
+                        showToast("Item removed from enquiry list");
                       }}
                       className="text-xs text-gray-400 transition-colors hover:text-red-500"
                     >
                       Remove
                     </button>
+
                     <span className="ml-auto text-sm font-bold text-gray-900">
-                      {formatMoney(product.price * qty)}
+                      {formatMoney(product.orig * qty)}
                     </span>
                   </div>
                 </div>
@@ -169,17 +193,22 @@ export default function CartDrawer() {
           )}
         </div>
 
+        {/* Footer — only when there are lines */}
         {lines.length > 0 && (
           <div className="border-t border-gray-100 px-5 py-4">
-            <div className="mb-4 space-y-2">
+            <div className="mb-3 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-semibold">{formatMoney(subtotal)}</span>
+                <span className="text-gray-500">
+                  Indicative range
+                </span>
+                <span className="text-right text-xs font-semibold text-gray-700">
+                  {formatMoney(subtotal)} – {formatMoney(quotedTotal)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">You save</span>
-                <span className="font-semibold text-green-600">
-                  {formatMoney(savings)}
+                <span className="text-gray-500">Quoted at</span>
+                <span className="text-right text-xs font-medium text-gray-500">
+                  Highest of range
                 </span>
               </div>
               <div className="flex justify-between text-sm">
@@ -188,29 +217,32 @@ export default function CartDrawer() {
                   As per vendor
                 </span>
               </div>
-              <p className="text-[10px] leading-relaxed text-gray-400">
-                Free delivery applies only when the vendor supports it —
-                otherwise delivery charges are payable by the buyer.
-              </p>
-              <div className="flex justify-between border-t border-gray-100 pt-2 text-base">
-                <span className="font-bold">Total</span>
-                <span className="font-black">{formatMoney(subtotal)}</span>
-              </div>
             </div>
+
+            <div className="flex justify-between border-t border-gray-100 pt-3 text-base">
+              <span className="font-bold">Quoted Total</span>
+              <span className="font-black">{formatMoney(quotedTotal)}</span>
+            </div>
+
+            <p className="mt-2 text-[10px] leading-relaxed text-gray-400">
+              Prices shown are indicative. A formal quotation will be emailed to
+              you — you can negotiate before confirming. Free delivery applies
+              only when the vendor supports it.
+            </p>
 
             <button
               type="button"
-              onClick={handleProceedToCheckout}
-              className="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white hover:bg-primarydark"
+              onClick={handleRequestQuotation}
+              className="mt-4 w-full rounded-lg bg-primary py-3 text-sm font-bold text-white hover:bg-primarydark"
             >
-              Proceed to Checkout
+              Request Quotation
             </button>
             <button
               type="button"
               onClick={closeOverlay}
               className="mt-2 w-full rounded-lg py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
             >
-              Continue Shopping
+              Continue Browsing
             </button>
           </div>
         )}

@@ -1,13 +1,10 @@
-import { CHECKOUT_STEPS } from "@/lib/data/checkout";
+import { CHECKOUT_STEPS, STAGE_TO_STEP } from "@/lib/data/checkout";
 
-export default function Stepper({ current }) {
-  const activeIndex = CHECKOUT_STEPS.findIndex((s) => s.id === current);
+export default function Stepper({ stage }) {
+  const activeIndex = STAGE_TO_STEP[stage] ?? 0;
 
   return (
-    <ol
-      aria-label="Checkout progress"
-      className="flex items-center gap-2 sm:gap-4"
-    >
+    <ol aria-label="Quotation progress" className="flex items-center gap-2 sm:gap-4">
       {CHECKOUT_STEPS.map((step, i) => {
         const isDone = i < activeIndex;
         const isActive = i === activeIndex;
@@ -40,9 +37,7 @@ export default function Stepper({ current }) {
             {i < CHECKOUT_STEPS.length - 1 && (
               <span
                 aria-hidden="true"
-                className={`h-px w-6 sm:w-12 ${
-                  isDone ? "bg-green-600" : "bg-gray-200"
-                }`}
+                className={`h-px w-6 sm:w-12 ${isDone ? "bg-green-600" : "bg-gray-200"}`}
               />
             )}
           </li>
