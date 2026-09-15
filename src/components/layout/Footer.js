@@ -7,15 +7,42 @@ import { CATEGORIES, slugifyCategory } from "@/lib/data/categories";
 import { useUI } from "@/context/UIContext";
 
 const CATEGORY_NAMES = new Set(CATEGORIES.map((c) => c.name));
-const QUICK_LINK_HREFS = { Home: "/", "New Arrivals": "/new-arrivals", "Today's Deals": "/deals" };
+
+const QUICK_LINK_HREFS = {
+  Home: "/",
+  "New Arrivals": "/new-arrivals",
+  "Today's Deals": "/deals",
+};
+
+// Only links with real destinations get hrefs — everything else renders as
+// inert text so we don't ship dead buttons.
+const COMPANY_HREFS = {
+  "About Us": "/about",
+  Careers: "/careers",
+  "Press & Media": "/press",
+  Sustainability: "/sustainability",
+};
+
+const SUPPORT_HREFS = {
+  "Help Center": "/help",
+  "Return Policy": "/return-policy",
+  "Bulk Orders": "/bulk-orders",
+  "Contact Us": "/contact",
+};
 
 export default function Footer() {
   const { openTrack } = useUI();
 
   /** Resolves a footer label to a real destination where one exists; otherwise the link renders as inert text. */
   function hrefFor(columnTitle, label) {
-    if (columnTitle === "Categories" && CATEGORY_NAMES.has(label)) return `/category/${slugifyCategory(label)}`;
-    if (columnTitle === "Quick Links" && QUICK_LINK_HREFS[label]) return QUICK_LINK_HREFS[label];
+    if (columnTitle === "Categories" && CATEGORY_NAMES.has(label))
+      return `/category/${slugifyCategory(label)}`;
+    if (columnTitle === "Quick Links" && QUICK_LINK_HREFS[label])
+      return QUICK_LINK_HREFS[label];
+    if (columnTitle === "Company" && COMPANY_HREFS[label])
+      return COMPANY_HREFS[label];
+    if (columnTitle === "Support" && SUPPORT_HREFS[label])
+      return SUPPORT_HREFS[label];
     return null;
   }
 
