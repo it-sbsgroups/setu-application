@@ -1,9 +1,13 @@
 import { PHOTO as P, thumb } from "@/lib/format";
 
 let _id = 0;
-/** Small factory so each product literal below stays a single readable line. */
-function product(name, price, orig, rating, reviews, img, badge) {
-  return { id: ++_id, name, price, orig, rating, reviews, img, badge: badge || null };
+/**
+ * Small factory so each product literal below stays a single readable line.
+ * `cat` is only needed for standalone entries (TRENDING/LATEST) that aren't
+ * already grouped into one of the category arrays further down.
+ */
+function product(name, price, orig, rating, reviews, img, badge, cat) {
+  return { id: ++_id, name, price, orig, rating, reviews, img, badge: badge || null, cat: cat || null };
 }
 
 export const HERO_SLIDES = [
@@ -95,21 +99,21 @@ const IT = [
 ];
 
 export const TRENDING = [
-  product("Bosch GSB 10.8-2-LI Cordless Drill", 5499, 7200, 4.6, 8765, P.drill, "🔥 Trending"),
-  product("3M 7500 Half Facepiece Respirator", 2299, 3200, 4.7, 5432, P.mask, "🔥 Hot"),
-  product("Havells L60 32A MCB (Pack of 6)", 1099, 1599, 4.5, 4321, P.elec, "🔥 Trending"),
-  product("Stanley 92-849 69-Piece Socket Set", 3999, 5500, 4.6, 3456, P.tool4, "🔥 Hot"),
-  product("JSP EVO3 Safety Helmet Blue", 649, 999, 4.4, 6789, P.helmet, "🔥 Trending"),
-  product("Finolex FRLS 1.5 sq mm Wire 90m", 2299, 3200, 4.5, 7654, P.grinder, "🔥 Hot"),
+  product("Bosch GSB 10.8-2-LI Cordless Drill", 5499, 7200, 4.6, 8765, P.drill, "🔥 Trending", "Power Tools"),
+  product("3M 7500 Half Facepiece Respirator", 2299, 3200, 4.7, 5432, P.mask, "🔥 Hot", "Safety & PPE"),
+  product("Havells L60 32A MCB (Pack of 6)", 1099, 1599, 4.5, 4321, P.elec, "🔥 Trending", "Electrical"),
+  product("Stanley 92-849 69-Piece Socket Set", 3999, 5500, 4.6, 3456, P.tool4, "🔥 Hot", "Hand Tools"),
+  product("JSP EVO3 Safety Helmet Blue", 649, 999, 4.4, 6789, P.helmet, "🔥 Trending", "Safety & PPE"),
+  product("Finolex FRLS 1.5 sq mm Wire 90m", 2299, 3200, 4.5, 7654, P.grinder, "🔥 Hot", "Electrical"),
 ];
 
 export const LATEST = [
-  product("Makita DHP486Z 18V Brushless Combi Drill", 14999, 19000, 4.8, 123, P.tool5, "🆕 New"),
-  product("Milwaukee M18 FUEL Circular Saw", 22999, 29000, 4.7, 87, P.safety, "🆕 Launch"),
-  product("Hilti X-BT 3 Gas Nailer", 45999, 58000, 4.9, 45, P.tool6, "🆕 New"),
-  product("Fluke 289 True-RMS Multimeter", 29999, 38000, 4.8, 67, P.tool3, "🆕 New"),
-  product("Atlas Copco GA15+ Air Compressor", 149999, 185000, 4.9, 23, P.tool4, "🆕 Launch"),
-  product("Leica DISTO D810 Touch Laser Measurer", 34999, 44000, 4.7, 34, P.grinder, "🆕 New"),
+  product("Makita DHP486Z 18V Brushless Combi Drill", 14999, 19000, 4.8, 123, P.tool5, "🆕 New", "Power Tools"),
+  product("Milwaukee M18 FUEL Circular Saw", 22999, 29000, 4.7, 87, P.safety, "🆕 Launch", "Power Tools"),
+  product("Hilti X-BT 3 Gas Nailer", 45999, 58000, 4.9, 45, P.tool6, "🆕 New", "Power Tools"),
+  product("Fluke 289 True-RMS Multimeter", 29999, 38000, 4.8, 67, P.tool3, "🆕 New", "Electrical"),
+  product("Atlas Copco GA15+ Air Compressor", 149999, 185000, 4.9, 23, P.tool4, "🆕 Launch", "Material Handling"),
+  product("Leica DISTO D810 Touch Laser Measurer", 34999, 44000, 4.7, 34, P.grinder, "🆕 New", "Hand Tools"),
 ];
 
 /** Per-category product lists, keyed by the category name used in nav/mega-menu. */
@@ -141,7 +145,9 @@ export const SECTIONS = [
 ];
 
 /** Flat list of every product, each tagged with its category, plus an id lookup map. */
-export const ALL_PRODUCTS = Object.entries(CATEGORY_PRODUCTS).flatMap(([cat, list]) =>
-  list.map((p) => ({ ...p, cat }))
-);
+export const ALL_PRODUCTS = [
+  ...Object.entries(CATEGORY_PRODUCTS).flatMap(([cat, list]) => list.map((p) => ({ ...p, cat }))),
+  ...TRENDING,
+  ...LATEST,
+];
 export const PRODUCTS_BY_ID = Object.fromEntries(ALL_PRODUCTS.map((p) => [p.id, p]));

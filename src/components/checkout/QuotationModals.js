@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import { NEGOTIATION_CHANNELS, CONFIRM_METHODS } from "@/lib/data/checkout";
 import { formatMoney } from "@/lib/format";
+import { generateOtp } from "@/lib/mockApi";
 
 /* ─────────────────────────────────────────────────────────────
    Modal 1 — "Have you received the quotation via email?"
@@ -186,7 +187,7 @@ export function ConfirmOrderModal({ open, email, lines, locked, onConfirm }) {
     setOtpSent(false);
     setPoFile(null);
     if (id === "otp" && !otpSent) {
-      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const code = generateOtp();
       setGeneratedOtp(code);
       setOtpSent(true);
     }

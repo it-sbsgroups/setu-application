@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Logo from "@/components/layout/Logo";
 import { useAuth } from "@/context/AuthContext";
@@ -13,13 +13,34 @@ const METHODS = [
   { id: "google", icon: "🔴", iconBg: "bg-red-50", title: "Continue with Google", sub: "Use your Google workspace account" },
 ];
 
-const INITIAL_FORM = { step: "choose", method: "", value: "", name: "", signup: false, otp: "", masked: "" };
+const INITIAL_FORM = {
+  step: "choose",
+  method: "",
+  value: "",
+  name: "",
+  orgName: "",
+  designation: "",
+  employeeId: "",
+  signup: false,
+  otp: "",
+  masked: "",
+};
 
 export default function LoginModal() {
   const { overlay, closeOverlay, openTrack, showToast } = useUI();
   const { user, login, logout } = useAuth();
   const open = overlay === "login";
   const [form, setForm] = useState(INITIAL_FORM);
+  const prevVerification = useRef(user?.orgVerification);
+
+  // Fires a toast the moment the mock admin-verification timer (in
+  // AuthContext) flips a pending organization to verified.
+  useEffect(() => {
+    if (prevVerification.current === "pending" && user?.orgVerification === "verified") {
+      showToast(`${user.orgName || "Your organization"} has been verified — you can now request quotations`);
+    }
+    prevVerification.current = user?.orgVerification;
+  }, [user?.orgVerification, user?.orgName, showToast]);
 
   // Reset to "choose" (or straight to the account view if already signed in) every time the modal opens.
   useEffect(() => {
@@ -46,7 +67,10 @@ export default function LoginModal() {
     } else if (form.method === "email" && !isValidEmail(raw)) {
       return showToast("Enter a valid email address");
     }
-    if (form.signup && !form.name.trim()) return showToast("Please enter your name / company");
+    if (form.signup && !form.name.trim()) return showToast("Please enter your name");
+    if (form.signup && !form.orgName.trim()) return showToast("Please enter your organization name");
+    if (form.signup && !form.designation.trim()) return showToast("Please enter your designation");
+    if (form.signup && !form.employeeId.trim()) return showToast("Please enter your organization / employee ID");
 
     const otp = generateOtp();
     const masked = maskContact(form.method, value);
@@ -68,6 +92,14 @@ export default function LoginModal() {
     const nextUser = {
       name: form.name.trim() || (form.method === "mobile" ? "SbS Customer" : form.value.split("@")[0] || "SbS Customer"),
       contact: form.method === "mobile" ? "+91 " + form.value : form.value,
+      // Organization fields only exist for freshly-created accounts in this
+      // demo (a real backend would look up an existing profile on login).
+      orgName: form.signup ? form.orgName.trim() : "",
+      designation: form.signup ? form.designation.trim() : "",
+      employeeId: form.signup ? form.employeeId.trim() : "",
+      // New organizations start "pending" until an administrator verifies
+      // them; returning logins are treated as already-verified accounts.
+      orgVerification: form.signup ? "pending" : "verified",
     };
     login(nextUser);
     update({ step: "success" });
@@ -182,14 +214,48 @@ function IdentifyStep({ form, onChange, onBack, onSubmit }) {
       </p>
 
       {form.signup && (
-        <div className="mb-3">
-          <label className="text-xs font-medium text-gray-500">Full name / Company</label>
-          <input
-            value={form.name}
-            onChange={(e) => onChange({ name: e.target.value })}
-            className="auth-input mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all"
-            placeholder="e.g. Rahul Sharma"
-          />
+        <div className="mb-3 space-y-3">
+          <div>
+            <label className="text-xs font-medium text-gray-500">Full Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => onChange({ name: e.target.value })}
+              className="auth-input mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all"
+              placeholder="e.g. Rahul Sharma"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Organization Name</label>
+            <input
+              value={form.orgName}
+              onChange={(e) => onChange({ orgName: e.target.value })}
+              className="auth-input mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all"
+              placeholder="e.g. Malhotra Fabrication Works"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-gray-500">Designation</label>
+              <input
+                value={form.designation}
+                onChange={(e) => onChange({ designation: e.target.value })}
+                className="auth-input mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all"
+                placeholder="e.g. Procurement Manager"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500">Organization / Employee ID</label>
+              <input
+                value={form.employeeId}
+                onChange={(e) => onChange({ employeeId: e.target.value })}
+                className="auth-input mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm transition-all"
+                placeholder="e.g. EMP-2291"
+              />
+            </div>
+          </div>
+          <p className="text-[11px] leading-relaxed text-gray-400">
+            Your organization account is verified by our team before you can raise quotations — usually within a few hours.
+          </p>
         </div>
       )}
 
@@ -263,6 +329,24 @@ function OtpStep({ form, onBack, onResend, onVerify }) {
   );
 }
 
+function VerificationBadge({ status }) {
+  if (status === "pending") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+        ⏳ Verification Pending
+      </span>
+    );
+  }
+  if (status === "verified") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
+        ✅ Verified Organization
+      </span>
+    );
+  }
+  return null;
+}
+
 function SuccessStep({ signup, onFinish }) {
   const { user } = useAuth();
   if (!user) return null;
@@ -276,15 +360,29 @@ function SuccessStep({ signup, onFinish }) {
       </p>
       <div className="mb-5 rounded-xl bg-gray-50 p-4 text-left">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-navy font-bold text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-bold text-white">
             {user.name.charAt(0).toUpperCase()}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-semibold text-gray-800">{user.name}</div>
             <div className="truncate text-xs text-gray-400">{user.contact}</div>
           </div>
         </div>
+        {user.orgName && (
+          <div className="mt-3 space-y-1 border-t border-gray-200 pt-3 text-xs">
+            <p className="font-semibold text-gray-700">{user.orgName}</p>
+            <p className="text-gray-400">{user.designation} · ID: {user.employeeId}</p>
+            <div className="pt-1">
+              <VerificationBadge status={user.orgVerification} />
+            </div>
+          </div>
+        )}
       </div>
+      {user.orgVerification === "pending" && (
+        <p className="mb-4 text-xs leading-relaxed text-gray-400">
+          You can browse and add items to your cart right away. Our team will verify {user.orgName || "your organization"} shortly — quotation requests unlock once verified.
+        </p>
+      )}
       <button type="button" onClick={onFinish} className="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primarydark">
         Start Shopping
       </button>
@@ -299,7 +397,14 @@ function LoggedInStep({ user, onTrackOrder, onLogout }) {
         {user.name.charAt(0).toUpperCase()}
       </div>
       <h3 className="font-display mb-1 text-xl font-black text-gray-900">{user.name}</h3>
-      <p className="mb-6 text-xs text-gray-400">{user.contact}</p>
+      <p className="mb-2 text-xs text-gray-400">{user.contact}</p>
+      {user.orgName && (
+        <div className="mb-6 space-y-1.5">
+          <p className="text-xs font-semibold text-gray-600">{user.orgName} · {user.designation}</p>
+          <VerificationBadge status={user.orgVerification} />
+        </div>
+      )}
+      {!user.orgName && <div className="mb-6" />}
       <div className="space-y-2 text-left">
         <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
           <span>📦</span> My Orders

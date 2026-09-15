@@ -33,6 +33,7 @@ export function sendQuotationEmail({ lines, contact, address }) {
         sentAt: new Date().toISOString(),
         validTill: new Date(Date.now() + 7 * 86400000).toISOString(),
         email: contact.email,
+        ccEmails: contact.ccEmails || [],
         totalHigh: quotationTotal(lines),
       });
     }, 900);
@@ -65,6 +66,7 @@ export function downloadQuotation({ lines, address, contact, quote }) {
     `  ${address.line1}${address.line2 ? ", " + address.line2 : ""}`,
     `  ${address.city}, ${address.state} — ${address.pincode}`,
     `  +91 ${address.mobile}  ·  ${contact.email}`,
+    ...(contact.ccEmails && contact.ccEmails.length ? [`  CC: ${contact.ccEmails.join(", ")}`] : []),
     "",
     l,
     "ITEMS (Highest price of the quotation range)",

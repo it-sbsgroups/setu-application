@@ -1,12 +1,18 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const USER_STORAGE_KEY = "sbs_user";
 const AuthContext = createContext(null);
 
+// Demo-only stand-in for the real admin approval workflow: a new organization
+// account starts "pending" and is auto-approved a few seconds later so the
+// rest of the RFQ flow is testable without a live admin backend.
+const MOCK_VERIFICATION_DELAY_MS = 6000;
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const verifyTimer = useRef(null);
 
   useEffect(() => {
     try {
@@ -18,14 +24,26 @@ export function AuthProvider({ children }) {
     } catch {
       // ignore corrupt storage
     }
+    return () => clearTimeout(verifyTimer.current);
   }, []);
 
-  function login(nextUser) {
+  function persist(nextUser) {
     setUser(nextUser);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
   }
 
+  function login(nextUser) {
+    persist(nextUser);
+    if (nextUser.orgVerification === "pending") {
+      clearTimeout(verifyTimer.current);
+      verifyTimer.current = setTimeout(() => {
+        persist({ ...nextUser, orgVerification: "verified" });
+      }, MOCK_VERIFICATION_DELAY_MS);
+    }
+  }
+
   function logout() {
+    clearTimeout(verifyTimer.current);
     setUser(null);
     localStorage.removeItem(USER_STORAGE_KEY);
   }

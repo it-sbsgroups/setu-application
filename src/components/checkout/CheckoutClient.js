@@ -130,6 +130,7 @@ export default function CheckoutClient() {
   /* ── render gates ─────────────────────────────────────────── */
 
   if (!user) return <AuthGate onLogin={openLogin} />;
+  if (user.orgVerification === "pending") return <VerificationPendingGate user={user} />;
   if (order) return <OrderPlacedScreen order={order} address={address} contact={contact} locked={locked} lines={lines} />;
 
   const isModalStage = [
@@ -231,6 +232,28 @@ export default function CheckoutClient() {
 }
 
 /* ── inline subcomponents ─────────────────────────────────── */
+
+function VerificationPendingGate({ user }) {
+  return (
+    <div className="mx-auto max-w-md px-4 py-20 text-center">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-3xl">
+        ⏳
+      </div>
+      <h1 className="font-display text-xl font-black text-gray-900">
+        {user.orgName || "Your organization"} is pending verification
+      </h1>
+      <p className="mt-2 text-sm text-gray-500">
+        Our team verifies every new organization account before quotations can be raised — this
+        usually takes a few hours. You can keep browsing and building your cart in the meantime.
+      </p>
+      <div className="mt-6">
+        <Link href="/" className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primarydark">
+          Continue Browsing
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function AuthGate({ onLogin }) {
   return (

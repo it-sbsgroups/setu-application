@@ -10,6 +10,7 @@ const INITIAL = {
   name: "",
   mobile: "",
   email: "",
+  ccEmails: [],
   pincode: "",
   city: "",
   state: "",
@@ -61,6 +62,8 @@ export default function QuoteDetailsStep({ initial, submitting, onSubmit }) {
   // Lazy initializer — runs once on mount with a guaranteed-safe shape.
   const [form, setForm] = useState(() => mergeInitial(initial));
   const [errors, setErrors] = useState({});
+  const [ccInput, setCcInput] = useState("");
+  const [ccError, setCcError] = useState("");
 
   function update(patch) {
     setForm((p) => ({ ...p, ...patch }));
@@ -69,6 +72,22 @@ export default function QuoteDetailsStep({ initial, submitting, onSubmit }) {
       Object.keys(patch).forEach((k) => delete n[k]);
       return n;
     });
+  }
+
+  function addCcEmail() {
+    const value = ccInput.trim().toLowerCase();
+    if (!value) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return setCcError("Enter a valid email address");
+    if (value === form.email.trim().toLowerCase()) return setCcError("That's already the primary recipient");
+    if (form.ccEmails.includes(value)) return setCcError("Already added");
+    if (form.ccEmails.length >= 5) return setCcError("You can add up to 5 additional recipients");
+    update({ ccEmails: [...form.ccEmails, value] });
+    setCcInput("");
+    setCcError("");
+  }
+
+  function removeCcEmail(value) {
+    update({ ccEmails: form.ccEmails.filter((e) => e !== value) });
   }
 
   function handleSubmit(e) {
@@ -96,6 +115,7 @@ export default function QuoteDetailsStep({ initial, submitting, onSubmit }) {
       contact: {
         name: form.name,
         email: form.email,
+        ccEmails: form.ccEmails,
         mobile: form.mobile,
         contactPref: form.contactPref,
         gstin: form.gstin ? form.gstin.trim().toUpperCase() : null,
@@ -156,6 +176,53 @@ export default function QuoteDetailsStep({ initial, submitting, onSubmit }) {
               placeholder="you@company.com"
               className="checkout-input"
             />
+          </Field>
+        </div>
+
+        <div className="sm:col-span-2">
+          <Field label="Also send this quotation to (optional — e.g. your manager or finance team)" error={ccError}>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={ccInput}
+                onChange={(e) => {
+                  setCcInput(e.target.value);
+                  setCcError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCcEmail();
+                  }
+                }}
+                placeholder="colleague@company.com"
+                className="checkout-input flex-1"
+              />
+              <button
+                type="button"
+                onClick={addCcEmail}
+                className="shrink-0 rounded-lg border border-gray-200 px-4 text-sm font-semibold text-gray-600 transition-colors hover:border-primary hover:text-primary"
+              >
+                Add
+              </button>
+            </div>
+            {form.ccEmails.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {form.ccEmails.map((email) => (
+                  <span key={email} className="flex items-center gap-1.5 rounded-full bg-orange-50 py-1 pl-3 pr-1.5 text-xs font-medium text-primary">
+                    {email}
+                    <button
+                      type="button"
+                      onClick={() => removeCcEmail(email)}
+                      aria-label={`Remove ${email}`}
+                      className="flex h-4 w-4 items-center justify-center rounded-full text-primary hover:bg-orange-100"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </Field>
         </div>
 

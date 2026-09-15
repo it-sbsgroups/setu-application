@@ -9,7 +9,13 @@ export default function EmailSentScreen({ contact, quote, negotiation }) {
       </h2>
       <p className="mt-2 text-sm text-gray-500">
         We&apos;ve emailed the quotation (highest of the price range) to{" "}
-        <b className="text-gray-800">{contact?.email}</b>.
+        <b className="text-gray-800">{contact?.email}</b>
+        {quote?.ccEmails?.length > 0 && (
+          <>
+            {" "}and {quote.ccEmails.length} other{quote.ccEmails.length > 1 ? "s" : ""}
+          </>
+        )}
+        .
       </p>
       {quote?.quoteId && (
         <p className="mt-2 text-xs text-gray-400">

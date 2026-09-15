@@ -46,7 +46,7 @@ export default function AboutPage() {
               Our Story
             </p>
             <h2 className="font-display mb-4 text-2xl font-black text-gray-900 sm:text-3xl">
-              From a small idea to India's industrial backbone
+              From a small idea to India&apos;s industrial backbone
             </h2>
             <div className="space-y-4 text-sm leading-relaxed text-gray-600">
               <p>
