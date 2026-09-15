@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Logo from "@/components/layout/Logo";
 import { useAuth } from "@/context/AuthContext";
@@ -391,6 +392,15 @@ function SuccessStep({ signup, onFinish }) {
 }
 
 function LoggedInStep({ user, onTrackOrder, onLogout }) {
+  const router = useRouter();
+  const { closeOverlay } = useUI();
+
+  function go(path) {
+    closeOverlay();
+    // Small delay lets the modal fade out before the route change.
+    setTimeout(() => router.push(path), 80);
+  }
+
   return (
     <div className="py-4 text-center">
       <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-navy text-2xl font-black text-white">
@@ -400,25 +410,86 @@ function LoggedInStep({ user, onTrackOrder, onLogout }) {
       <p className="mb-2 text-xs text-gray-400">{user.contact}</p>
       {user.orgName && (
         <div className="mb-6 space-y-1.5">
-          <p className="text-xs font-semibold text-gray-600">{user.orgName} · {user.designation}</p>
+          <p className="text-xs font-semibold text-gray-600">
+            {user.orgName} · {user.designation}
+          </p>
           <VerificationBadge status={user.orgVerification} />
         </div>
       )}
       {!user.orgName && <div className="mb-6" />}
+
       <div className="space-y-2 text-left">
-        <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-          <span>📦</span> My Orders
-        </button>
-        <button type="button" onClick={onTrackOrder} className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-          <span>🚚</span> Track an Order
-        </button>
-        <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-          <span>🏭</span> Business Profile
-        </button>
+        <MenuBtn
+          icon="📊"
+          label="Account Dashboard"
+          sub="Overview, KPIs & quick actions"
+          onClick={() => go("/account")}
+        />
+        <MenuBtn
+          icon="📦"
+          label="My Orders"
+          sub="Track, negotiate, download invoices"
+          onClick={() => go("/account/orders")}
+        />
+        <MenuBtn
+          icon="🚚"
+          label="Track an Order"
+          sub="Enter ORN to see live status"
+          onClick={() => {
+            closeOverlay();
+            onTrackOrder();
+          }}
+        />
+        <MenuBtn
+          icon="🤝"
+          label="Negotiations"
+          sub="Chat with the pricing desk"
+          onClick={() => go("/account/negotiations")}
+        />
+        <MenuBtn
+          icon="🏭"
+          label="Business Profile"
+          sub="Organization & contact details"
+          onClick={() => go("/account/profile")}
+        />
+        <MenuBtn
+          icon="👥"
+          label="Team & Access"
+          sub="Invite team, set permissions"
+          onClick={() => go("/account/team")}
+        />
+        <MenuBtn
+          icon="📞"
+          label="Support"
+          sub="Tickets & one-to-one calls"
+          onClick={() => go("/account/support")}
+        />
       </div>
-      <button type="button" onClick={onLogout} className="mt-5 w-full rounded-lg bg-gray-800 py-3 text-sm font-bold text-white transition-colors hover:bg-gray-900">
+
+      <button
+        type="button"
+        onClick={onLogout}
+        className="mt-5 w-full rounded-lg bg-gray-800 py-3 text-sm font-bold text-white transition-colors hover:bg-gray-900"
+      >
         Logout
       </button>
     </div>
+  );
+}
+
+function MenuBtn({ icon, label, sub, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 transition-colors hover:border-primary hover:bg-orange-50/50"
+    >
+      <span className="text-lg" aria-hidden="true">{icon}</span>
+      <div className="text-left">
+        <div className="font-semibold">{label}</div>
+        {sub && <div className="text-[11px] text-gray-400">{sub}</div>}
+      </div>
+      <span className="ml-auto text-gray-300" aria-hidden="true">›</span>
+    </button>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { TrackIcon, CartIcon, UserIcon } from "@/components/ui/Icons";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 const APP_LINKS = [
   { icon: "📱", title: "iOS App", sub: "Download on App Store" },
@@ -11,12 +13,28 @@ const APP_LINKS = [
   { icon: "💻", title: "Desktop App", sub: "Windows & macOS" },
 ];
 
+const ACCOUNT_LINKS = [
+  { icon: "📊", title: "Account Dashboard", sub: "Overview & quick actions", href: "/account" },
+  { icon: "📦", title: "My Orders", sub: "Track, negotiate, invoices", href: "/account/orders" },
+  { icon: "🤝", title: "Negotiations", sub: "Chat with pricing desk", href: "/account/negotiations" },
+  { icon: "📍", title: "Addresses", sub: "Manage delivery locations", href: "/account/addresses" },
+  { icon: "👥", title: "Team & Access", sub: "Invite team members", href: "/account/team" },
+  { icon: "🏭", title: "Business Profile", sub: "Organization details", href: "/account/profile" },
+  { icon: "📞", title: "Support", sub: "Tickets & one-to-one calls", href: "/account/support" },
+];
+
 export default function HeaderActions() {
   const { count } = useCart();
   const { user } = useAuth();
-  const { openTrack, openCart, openLogin } = useUI();
+  const { openTrack, openCart, openLogin, closeOverlay } = useUI();
+  const router = useRouter();
 
   const loginLabel = user ? user.name.split(" ")[0].slice(0, 10) : "Login";
+
+  function go(path) {
+    closeOverlay();
+    router.push(path);
+  }
 
   return (
     <div className="flex shrink-0 items-center gap-2">
@@ -37,13 +55,18 @@ export default function HeaderActions() {
         <div className="relative">
           <CartIcon />
           {count > 0 && (
-            <span className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-0.5 font-bold text-white" style={{ fontSize: 9 }}>
+            <span
+              className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-0.5 font-bold text-white"
+              style={{ fontSize: 9 }}
+            >
               {count}
             </span>
           )}
         </div>
         <span className="text-xs font-medium">Cart</span>
       </button>
+
+      <NotificationBell />
 
       <button
         type="button"
@@ -66,12 +89,40 @@ export default function HeaderActions() {
             <circle cx="12" cy="19" r="1.5" />
           </svg>
         </button>
-        <div className="dropdown-animate absolute right-0 top-11 z-50 hidden w-60 rounded-xl bg-white py-2 shadow-2xl group-hover:block">
+
+        <div className="dropdown-animate absolute right-0 top-11 z-50 hidden w-64 rounded-xl bg-white py-2 shadow-2xl group-hover:block">
+          {user && (
+            <>
+              <div className="mb-1 border-b border-gray-100 px-4 py-2">
+                <p className="text-xs font-semibold text-gray-500">MY ACCOUNT</p>
+              </div>
+              {ACCOUNT_LINKS.map((link) => (
+                <button
+                  key={link.href}
+                  type="button"
+                  onClick={() => go(link.href)}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  <span className="text-lg">{link.icon}</span>
+                  <div className="text-left">
+                    <div className="font-medium">{link.title}</div>
+                    <div className="text-xs text-gray-400">{link.sub}</div>
+                  </div>
+                </button>
+              ))}
+              <div className="mt-1 border-t border-gray-100 pt-1" />
+            </>
+          )}
+
           <div className="mb-1 border-b border-gray-100 px-4 py-2">
             <p className="text-xs font-semibold text-gray-500">DOWNLOAD APPS</p>
           </div>
           {APP_LINKS.map((app) => (
-            <button key={app.title} type="button" className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+            <button
+              key={app.title}
+              type="button"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
               <span className="text-lg">{app.icon}</span>
               <div className="text-left">
                 <div className="font-medium">{app.title}</div>
@@ -80,24 +131,38 @@ export default function HeaderActions() {
             </button>
           ))}
           <div className="mt-1 border-t border-gray-100 pt-1">
-            <button type="button" onClick={openTrack} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+            <button
+              type="button"
+              onClick={openTrack}
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
               <span className="text-lg">🚚</span>
               <div className="text-left">
                 <div className="font-medium">Track Order</div>
                 <div className="text-xs text-gray-400">Enter ORN number</div>
               </div>
             </button>
-            <button type="button" onClick={openLogin} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-              <span className="text-lg">👤</span>
-              <div className="text-left">
-                <div className="font-medium">Login / Sign up</div>
-                <div className="text-xs text-gray-400">Mobile, Email or Google</div>
-              </div>
-            </button>
-            <button type="button" className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+            {!user && (
+              <button
+                type="button"
+                onClick={openLogin}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <span className="text-lg">👤</span>
+                <div className="text-left">
+                  <div className="font-medium">Login / Sign up</div>
+                  <div className="text-xs text-gray-400">Mobile, Email or Google</div>
+                </div>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => go("/help")}
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
               <span className="text-lg">🛟</span>
               <div className="text-left">
-                <div className="font-medium">Help & Support</div>
+                <div className="font-medium">Help &amp; Support</div>
                 <div className="text-xs text-gray-400">24×7 customer care</div>
               </div>
             </button>
