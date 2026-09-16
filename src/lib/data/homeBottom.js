@@ -1,5 +1,5 @@
 import { CATEGORIES, slugifyCategory } from "@/lib/data/categories";
-import { BRANDS } from "@/lib/data/footer";
+import { BRANDS as BRAND_LIST } from "@/lib/data/brands";
 
 /**
  * Content for the bottom-of-homepage SEO + trust block (About, Popular
@@ -25,36 +25,41 @@ export const ABOUT = {
   ],
 };
 
+/**
+ * "Why Industries Choose Us" — six pillars targeted at manufacturing plants,
+ * EPC contractors, MSMEs, infra projects, and government buyers. Each pillar
+ * mirrors a real procurement pain point these buyers face today.
+ */
 export const KEY_VALUES = [
   {
+    icon: "🏭",
+    title: "Built for Industrial Scale",
+    desc: "10 lakh+ industrial-grade SKUs across power tools, electrical, welding, fasteners and material handling — from single-unit workshops to multi-plant manufacturers.",
+  },
+  {
+    icon: "📋",
+    title: "Project & Bulk Procurement",
+    desc: "Tier-based bulk pricing at 3, 5, 10 and 25+ units, plus custom quotations for project BOQs, annual rate contracts, and multi-location dispatch.",
+  },
+  {
     icon: "🛡️",
-    title: "100% Genuine Products",
-    desc: "Sourced directly from authorised distributors and OEMs, with full GST invoicing on every order.",
-  },
-  {
-    icon: "💰",
-    title: "Bulk B2B Pricing",
-    desc: "Tier-based pricing, credit terms, and a dedicated account manager for business buyers.",
-  },
-  {
-    icon: "🚚",
-    title: "Vendor-Driven Delivery",
-    desc: "Free delivery is offered only when the vendor supports it — otherwise delivery charges are borne by the buyer.",
+    title: "Compliance You Can Audit",
+    desc: "Every order ships with GST invoice, ISI/BIS/CE certification, and full warranty documentation — ready for your plant audits and government tenders.",
   },
   {
     icon: "🔄",
-    title: "Replacement-Only Policy",
-    desc: "We don't accept returns. Wrong or damaged items are replaced free of cost, with instant action against responsible vendors.",
+    title: "Vendor Accountability",
+    desc: "Wrong, damaged, or substandard items are replaced free of cost. Vendors at fault face instant action under our seller agreement — no downtime, no disputes.",
+  },
+  {
+    icon: "🚚",
+    title: "Plant-Gate Logistics",
+    desc: "Same-day dispatch on orders before 2 PM, with freight partners who deliver to your MIDC unit, SEZ, industrial estate, or remote project site — across 19,000+ pin codes.",
   },
   {
     icon: "📞",
-    title: "Pre & Post-Warranty Support",
-    desc: "Our tele-caller team assists at every step — before and after warranty. Available 10 AM to 6 PM on working days.",
-  },
-  {
-    icon: "🔒",
-    title: "End-to-End Encrypted",
-    desc: "Your data is never shared with any third party or personal. Used only internally to improve our platform and deliver specialised features to you.",
+    title: "Dedicated Procurement Support",
+    desc: "A single point of contact for RFQs, negotiations, warranty claims, and AMC coordination — available 10 AM to 6 PM on all working days.",
   },
 ];
 
@@ -97,7 +102,10 @@ export const POPULAR_SEARCHES = [
   {
     id: "brands",
     label: "Top Brands",
-    links: BRANDS.map((b) => ({ label: b, href: "/categories" })),
+    links: BRAND_LIST.map((b) => ({
+      label: b.name,
+      href: `/brand/${b.slug}`,
+    })),
   },
   {
     id: "cities",

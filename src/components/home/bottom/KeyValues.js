@@ -4,16 +4,24 @@ export default function KeyValues() {
   return (
     <section
       aria-labelledby="key-values-heading"
-      className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
+      className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
     >
-      <h2
-        id="key-values-heading"
-        className="font-display mb-4 text-xl font-black text-gray-900 sm:text-2xl"
-      >
-        Why Businesses Choose SbS
-      </h2>
+      <div className="mb-4">
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-primary sm:text-xs">
+          TRUSTED BY INDUSTRIES LEADERS
+        </p>
+        <h2
+          id="key-values-heading"
+          className="font-display text-lg font-black text-gray-900 sm:text-xl md:text-2xl"
+        >
+          Why Industries Choose Us
+        </h2>
+        <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+          Everything your procurement team needs — verified brands, project pricing, and delivery to MIDC, SEZ, and industrial estates.
+        </p>
+      </div>
 
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
         {KEY_VALUES.map((value) => (
           <li
             key={value.title}

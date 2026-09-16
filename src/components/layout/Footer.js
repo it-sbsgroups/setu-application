@@ -4,9 +4,16 @@ import Link from "next/link";
 import Logo from "@/components/layout/Logo";
 import { FOOTER_COLUMNS, SOCIAL_LINKS } from "@/lib/data/footer";
 import { CATEGORIES, slugifyCategory } from "@/lib/data/categories";
+import { BRANDS as BRAND_LIST } from "@/lib/data/brands";
 import { useUI } from "@/context/UIContext";
 
 const CATEGORY_NAMES = new Set(CATEGORIES.map((c) => c.name));
+const BRAND_NAME_TO_SLUG = Object.fromEntries(
+  BRAND_LIST.flatMap((b) => [
+    [b.name, b.slug],
+    [b.displayName, b.slug],
+  ])
+);
 
 const QUICK_LINK_HREFS = {
   Home: "/",
@@ -14,8 +21,6 @@ const QUICK_LINK_HREFS = {
   "Today's Deals": "/deals",
 };
 
-// Only links with real destinations get hrefs — everything else renders as
-// inert text so we don't ship dead buttons.
 const COMPANY_HREFS = {
   "About Us": "/about",
   Careers: "/careers",
@@ -37,6 +42,8 @@ export default function Footer() {
   function hrefFor(columnTitle, label) {
     if (columnTitle === "Categories" && CATEGORY_NAMES.has(label))
       return `/category/${slugifyCategory(label)}`;
+    if (columnTitle === "Popular Brands" && BRAND_NAME_TO_SLUG[label])
+      return `/brand/${BRAND_NAME_TO_SLUG[label]}`;
     if (columnTitle === "Quick Links" && QUICK_LINK_HREFS[label])
       return QUICK_LINK_HREFS[label];
     if (columnTitle === "Company" && COMPANY_HREFS[label])
@@ -56,6 +63,7 @@ export default function Footer() {
               <ul>
                 {col.links.map((link) => {
                   const href = hrefFor(col.title, link);
+
                   if (col.title === "Support" && link === "Track Your Order") {
                     return (
                       <li key={link}>
@@ -69,6 +77,7 @@ export default function Footer() {
                       </li>
                     );
                   }
+
                   if (href) {
                     return (
                       <li key={link}>
@@ -78,6 +87,7 @@ export default function Footer() {
                       </li>
                     );
                   }
+
                   return (
                     <li key={link}>
                       <span className="foot-link cursor-default hover:text-gray-400">
