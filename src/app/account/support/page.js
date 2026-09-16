@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { useAccount } from "@/context/AccountContext";
 import { useUI } from "@/context/UIContext";
 import { formatMoney, thumb } from "@/lib/format";
 import Image from "next/image";
+import Skeleton from "@/components/ui/Skeleton";
 
 const PRIORITIES = [
   { id: "normal", label: "Normal", tone: "bg-gray-100 text-gray-700" },
@@ -23,6 +25,21 @@ const EMPTY_FORM = {
 };
 
 export default function SupportPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          <Skeleton className="h-[600px] w-full rounded-xl" />
+          <Skeleton className="h-96 w-full rounded-xl" />
+        </div>
+      }
+    >
+      <SupportInner />
+    </Suspense>
+  );
+}
+
+function SupportInner() {
   const searchParams = useSearchParams();
   const prefillOrn = searchParams.get("orn") || "";
   const prefillProductId = searchParams.get("productId") || "";

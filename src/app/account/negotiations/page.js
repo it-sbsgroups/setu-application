@@ -1,20 +1,38 @@
 "use client";
 
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/context/AccountContext";
 import { useUI } from "@/context/UIContext";
 import { formatMoney } from "@/lib/format";
+import Skeleton from "@/components/ui/Skeleton";
 
 export default function NegotiationsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+          <Skeleton className="h-[560px] w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
+        </div>
+      }
+    >
+      <NegotiationsInner />
+    </Suspense>
+  );
+}
+
+function NegotiationsInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { account, sendNegotiationMessage, lockPrice, uploadPO } = useAccount();
   const { showToast } = useUI();
 
   const threadId = searchParams.get("thread");
-  const negotiations = account?.negotiations || [];
+
+  const negotiations = useMemo(() => account?.negotiations || [], [account]);
+
   const active = useMemo(
     () => negotiations.find((n) => n.id === threadId) || negotiations[0],
     [negotiations, threadId]

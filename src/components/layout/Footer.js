@@ -35,6 +35,23 @@ const SUPPORT_HREFS = {
   "Contact Us": "/contact",
 };
 
+const SOLUTIONS_HREFS = {
+  "Bulk Orders": "/bulk-orders",
+};
+
+const PARTNERS_HREFS = {
+  "Become a Seller": "/become-a-seller",
+};
+
+const LEGAL_HREFS = {
+  "Privacy Policy": "/privacy-policy",
+  "Terms of Use": "/terms-of-use",
+  "Cookie Policy": "/cookie-policy",
+  Sitemap: "/sitemap",
+  "Grievance Officer": "/grievance",
+  "Report Infringement": "/grievance",
+};
+
 export default function Footer() {
   const { openTrack } = useUI();
 
@@ -50,6 +67,12 @@ export default function Footer() {
       return COMPANY_HREFS[label];
     if (columnTitle === "Support" && SUPPORT_HREFS[label])
       return SUPPORT_HREFS[label];
+    if (columnTitle === "Solutions" && SOLUTIONS_HREFS[label])
+      return SOLUTIONS_HREFS[label];
+    if (columnTitle === "Partners" && PARTNERS_HREFS[label])
+      return PARTNERS_HREFS[label];
+    if (columnTitle === "Legal" && LEGAL_HREFS[label])
+      return LEGAL_HREFS[label];
     return null;
   }
 

@@ -1,23 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CATEGORIES, slugifyCategory } from "@/lib/data/categories";
 import { MenuIcon, ChevronDownIcon } from "@/components/ui/Icons";
 
 const HIDE_DELAY_MS = 180;
 
+/* ── Touch-device detection via useSyncExternalStore ─────────────
+   Subscribes to the "(hover: none)" media query without calling
+   setState inside an effect. */
+function subscribeTouch(callback) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(hover: none)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+function getTouchSnapshot() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(hover: none)").matches;
+}
+function getTouchServerSnapshot() {
+  return false;
+}
+
 export default function CategoryNav() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const hideTimer = useRef(null);
 
-  // Detect touch device so we switch from hover → click for the mega menu.
-  const [isTouch, setIsTouch] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    setIsTouch(window.matchMedia("(hover: none)").matches);
-  }, []);
+  const isTouch = useSyncExternalStore(
+    subscribeTouch,
+    getTouchSnapshot,
+    getTouchServerSnapshot
+  );
 
   useEffect(() => {
     function handleScroll() {

@@ -73,12 +73,13 @@ export function CartProvider({ children }) {
       count,
       subtotal,
       savings,
+      hydrated,
       addItem,
       changeQty,
       removeItem,
       clearCart,
     };
-  }, [items]);
+  }, [items, hydrated]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

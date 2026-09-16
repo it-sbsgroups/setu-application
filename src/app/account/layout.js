@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -25,11 +24,8 @@ export default function AccountLayout({ children }) {
   const { user } = useAuth();
   const { openLogin } = useUI();
   const { account, hydrated } = useAccount();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted || !hydrated) {
+  if (!hydrated) {
     return (
       <div className="mx-auto max-w-screen-2xl gap-6 px-4 py-8 lg:grid lg:grid-cols-[240px_1fr] lg:items-start">
         <Skeleton className="hidden h-80 w-full rounded-xl lg:block" />

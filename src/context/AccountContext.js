@@ -1,5 +1,10 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect -- AccountProvider
+   syncs React state with localStorage. Reading storage must happen
+   after mount (server has no localStorage), so the effect is the
+   correct place for this sync. */
+
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { seedAccount, findOrder, findNegotiation } from "@/lib/data/account";
 import { useAuth } from "@/context/AuthContext";

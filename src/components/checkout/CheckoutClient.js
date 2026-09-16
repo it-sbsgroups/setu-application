@@ -44,7 +44,7 @@ const STAGES = {
 
 export default function CheckoutClient() {
   const router = useRouter();
-  const { lines, count, clearCart } = useCart();
+  const { lines, count, clearCart, hydrated } = useCart();
   const { user } = useAuth();
   const { openLogin, showToast } = useUI();
 
@@ -66,10 +66,13 @@ export default function CheckoutClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
-  // Empty-cart guard (except when we've just placed the order)
+  // Empty-cart guard (except when we've just placed the order).
+  // Waits for cart hydration so we don't bounce a user who has items
+  // saved in localStorage but hasn't been rehydrated yet.
   useEffect(() => {
+    if (!hydrated) return;
     if (count === 0 && !order) router.replace("/");
-  }, [count, order, router]);
+  }, [count, order, router, hydrated]);
 
   /* ── handlers ─────────────────────────────────────────────── */
 
