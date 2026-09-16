@@ -198,7 +198,6 @@ body {
   }
 }
 
-
 .checkout-input {
   width: 100%;
   border-radius: 0.5rem;
@@ -212,4 +211,70 @@ body {
   outline: none;
   border-color: #ff6b35;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Mobile polish
+   ───────────────────────────────────────────────────────── */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent iOS zoom on input focus (font-size must be ≥16px) */
+@media (max-width: 640px) {
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  /* Softer shadow on mobile cards — less visual noise */
+  .product-card {
+    box-shadow: none;
+  }
+}
+
+/* Safe-area padding for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Touch-friendly hit area helper */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Horizontal snap-scroll for mobile carousels */
+.snap-x-mandatory {
+  scroll-snap-type: x mandatory;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
+
+/* Bottom-sheet style modal on mobile */
+@media (max-width: 640px) {
+  .mobile-sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    max-height: 92vh;
+    border-radius: 1rem 1rem 0 0;
+  }
+}
+
+/* Tighter headings on small screens */
+@media (max-width: 480px) {
+  .font-display {
+    letter-spacing: -0.01em;
+  }
 }

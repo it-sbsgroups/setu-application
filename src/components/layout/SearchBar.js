@@ -12,7 +12,7 @@ import { SearchIcon } from "@/components/ui/Icons";
 
 const RESULTS_LIMIT = 6;
 
-export default function SearchBar() {
+export default function SearchBar({ compact = false }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [open, setOpen] = useState(false);
@@ -40,28 +40,35 @@ export default function SearchBar() {
 
   function handleAdd(product) {
     addItem(product.id);
-    showToast("Added to cart — " + product.name.slice(0, 32) + (product.name.length > 32 ? "…" : ""));
+    showToast(
+      "Added to cart — " +
+        product.name.slice(0, 32) +
+        (product.name.length > 32 ? "…" : "")
+    );
   }
 
   return (
     <div className="relative flex-1" ref={wrapRef}>
       <div className="flex overflow-hidden rounded-lg bg-white shadow-sm">
-        <select
-          value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            setOpen(true);
-          }}
-          className="hidden max-w-[150px] cursor-pointer border-r border-gray-200 bg-gray-50 px-2 py-2 text-xs text-gray-600 focus:outline-none md:block"
-          aria-label="Search category"
-        >
-          <option value="All">All Categories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        {!compact && (
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setOpen(true);
+            }}
+            className="hidden max-w-[150px] cursor-pointer border-r border-gray-200 bg-gray-50 px-2 py-2 text-xs text-gray-600 focus:outline-none md:block"
+            aria-label="Search category"
+          >
+            <option value="All">All Categories</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        )}
+
         <input
           value={query}
           onChange={(e) => {
@@ -70,14 +77,17 @@ export default function SearchBar() {
           }}
           onFocus={() => setOpen(true)}
           autoComplete="off"
-          placeholder="Search for products, brands and categories…"
-          className="min-w-0 flex-1 px-3 py-2 text-sm text-gray-700 focus:outline-none"
+          inputMode="search"
+          placeholder="Search products, brands…"
+          className="min-w-0 flex-1 px-3 py-2.5 text-sm text-gray-700 focus:outline-none"
           aria-label="Search products"
         />
+
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex shrink-0 items-center gap-1.5 bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primarydark"
+          aria-label="Search"
+          className="flex shrink-0 items-center gap-1.5 bg-primary px-3.5 text-sm font-semibold text-white active:bg-primarydark sm:px-4"
         >
           <SearchIcon />
           <span className="hidden sm:inline">Search</span>
@@ -85,39 +95,61 @@ export default function SearchBar() {
       </div>
 
       {shouldShowDropdown && (
-        <div className="absolute left-0 right-0 top-full z-[60] mt-2 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[70vh] overflow-hidden rounded-xl border border-gray-100 bg-white shadow-2xl">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
-            <span className="text-xs font-semibold text-gray-500">
+            <span className="truncate text-xs font-semibold text-gray-500">
               {query.trim() ? `Results for "${query}"` : `Top in ${category}`}
             </span>
-            <span className="text-xs text-gray-400">
-              {matches.length} product{matches.length === 1 ? "" : "s"}
+            <span className="shrink-0 text-xs text-gray-400">
+              {matches.length} item{matches.length === 1 ? "" : "s"}
             </span>
           </div>
 
           {matches.length === 0 ? (
             <div className="px-4 py-6 text-center">
               <div className="mb-2 text-3xl">🔍</div>
-              <p className="text-sm font-semibold text-gray-700">No products found</p>
-              <p className="mt-1 text-xs text-gray-400">Try a different keyword or category</p>
+              <p className="text-sm font-semibold text-gray-700">
+                No products found
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                Try a different keyword or category
+              </p>
             </div>
           ) : (
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-[55vh] overflow-y-auto">
               {matches.slice(0, RESULTS_LIMIT).map((product) => (
-                <div key={product.id} className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-orange-50/60">
-                  <Link href={`/product/${product.id}`} onClick={() => setOpen(false)} className="flex min-w-0 flex-1 items-center gap-3">
-                    <Image src={thumb(product.img)} alt="" width={40} height={40} className="shrink-0 rounded-lg bg-gray-50 object-cover" />
+                <div
+                  key={product.id}
+                  className="flex items-center gap-3 px-3 py-2.5 active:bg-orange-50/60 sm:px-4"
+                >
+                  <Link
+                    href={`/product/${product.id}`}
+                    onClick={() => setOpen(false)}
+                    className="flex min-w-0 flex-1 items-center gap-3"
+                  >
+                    <Image
+                      src={thumb(product.img)}
+                      alt=""
+                      width={44}
+                      height={44}
+                      className="h-11 w-11 shrink-0 rounded-lg bg-gray-50 object-cover"
+                    />
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-xs leading-snug text-gray-800">{product.name}</p>
+                      <p className="line-clamp-2 text-xs leading-snug text-gray-800">
+                        {product.name}
+                      </p>
                       <p className="mt-0.5 text-[11px] font-bold text-gray-900">
-                        {formatPriceRange(product)} <span className="font-normal text-gray-400">· {product.cat}</span>
+                        {formatPriceRange(product)}{" "}
+                        <span className="font-normal text-gray-400">
+                          · {product.cat}
+                        </span>
                       </p>
                     </div>
                   </Link>
                   <button
                     type="button"
                     onClick={() => handleAdd(product)}
-                    className="shrink-0 rounded bg-primary px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-primarydark"
+                    className="shrink-0 rounded bg-primary px-3 py-1.5 text-[11px] font-semibold text-white active:bg-primarydark"
                   >
                     Add
                   </button>

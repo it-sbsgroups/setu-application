@@ -48,8 +48,8 @@ export default function Footer() {
 
   return (
     <footer className="mt-8 bg-navy">
-      <div className="mx-auto max-w-screen-2xl px-4 pb-6 pt-12">
-        <div className="mb-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10">
+      <div className="mx-auto max-w-screen-2xl px-4 pb-6 pt-10 sm:pt-12">
+        <div className="mb-8 grid grid-cols-2 gap-x-4 gap-y-6 sm:mb-10 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-8 md:grid-cols-5 lg:grid-cols-10">
           {FOOTER_COLUMNS.map((col) => (
             <div key={col.title}>
               <h5 className="foot-col-title">{col.title}</h5>
@@ -59,7 +59,11 @@ export default function Footer() {
                   if (col.title === "Support" && link === "Track Your Order") {
                     return (
                       <li key={link}>
-                        <button type="button" onClick={openTrack} className="foot-link">
+                        <button
+                          type="button"
+                          onClick={openTrack}
+                          className="foot-link"
+                        >
                           {link}
                         </button>
                       </li>
@@ -76,7 +80,9 @@ export default function Footer() {
                   }
                   return (
                     <li key={link}>
-                      <span className="foot-link cursor-default hover:text-gray-400">{link}</span>
+                      <span className="foot-link cursor-default hover:text-gray-400">
+                        {link}
+                      </span>
                     </li>
                   );
                 })}
@@ -85,11 +91,14 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 pt-8">
+        <div className="border-t border-white/10 pt-6 sm:pt-8">
           <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-10">
             <div className="flex shrink-0 items-center gap-2">
               <Logo size={34} />
-              <div className="text-xs leading-tight" style={{ color: "#FF6B35" }}>
+              <div
+                className="text-xs leading-tight"
+                style={{ color: "#FF6B35" }}
+              >
                 Industrial
                 <br />
                 &amp; B2B
@@ -99,12 +108,17 @@ export default function Footer() {
             <div className="hidden h-14 w-px bg-white/15 lg:block" />
 
             <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-              <p className="max-w-2xl text-xs leading-relaxed text-gray-400">
-                India&apos;s leading B2B marketplace for industrial, engineering, and safety products — 10 lakh+ SKUs,
-                50,000+ verified brands, and same-day dispatch for businesses across the country.
+              <p className="max-w-2xl text-center text-xs leading-relaxed text-gray-400 sm:text-left">
+                India&apos;s leading B2B marketplace for industrial,
+                engineering, and safety products — 10 lakh+ SKUs, 50,000+
+                verified brands, and same-day dispatch for businesses across
+                the country.
               </p>
 
-              <div className="flex shrink-0 items-center gap-2 sm:ml-auto" aria-label="Follow SbS on social media">
+              <div
+                className="flex shrink-0 items-center gap-2 sm:ml-auto"
+                aria-label="Follow SbS on social media"
+              >
                 {SOCIAL_LINKS.map((social) => (
                   <a
                     key={social.name}
@@ -125,15 +139,25 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 md:flex-row">
-          <p className="text-center text-xs text-gray-500 md:text-left">
-            © {new Date().getFullYear()} Setu India Pvt. Ltd. All rights reserved. CIN: U74999DL2014PTC274263
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-white/10 pt-6 md:flex-row md:justify-between">
+          <p className="text-center text-[11px] text-gray-500 md:text-left md:text-xs">
+            © {new Date().getFullYear()} Setu India Pvt. Ltd. All rights reserved.
+            <br className="md:hidden" />
+            <span className="md:ml-1">CIN: U74999DL2014PTC274263</span>
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <span className="text-xs text-gray-500">We accept:</span>
-            <span className="rounded bg-white/5 px-2 py-1 text-xs text-gray-400">💳 Visa</span>
-            <span className="rounded bg-white/5 px-2 py-1 text-xs text-gray-400">🏦 Net Banking</span>
-            <span className="rounded bg-white/5 px-2 py-1 text-xs text-gray-400">📲 UPI</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <span className="text-[11px] text-gray-500 sm:text-xs">
+              We accept:
+            </span>
+            <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-gray-400 sm:text-xs">
+              💳 Visa
+            </span>
+            <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-gray-400 sm:text-xs">
+              🏦 Net Banking
+            </span>
+            <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-gray-400 sm:text-xs">
+              📲 UPI
+            </span>
           </div>
         </div>
       </div>

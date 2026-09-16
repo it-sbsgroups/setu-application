@@ -61,11 +61,11 @@ export default function AccountLayout({ children }) {
   }
 
   return (
-    <div className="mx-auto max-w-screen-2xl gap-6 px-4 py-6 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
-      {/* Sidebar — sticky under the header on desktop */}
+    <div className="mx-auto max-w-screen-2xl gap-6 px-3 py-4 sm:px-4 sm:py-6 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
+      {/* Sidebar — sticky under the header on desktop, horizontal scroll on mobile */}
       <aside className="mb-4 lg:sticky lg:top-24 lg:mb-0">
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+        <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-4">
+          <div className="mb-3 flex items-center gap-3 border-b border-gray-100 pb-3 sm:mb-4 sm:pb-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy text-base font-black text-white">
               {(account?.profile.name || user.name || "U").charAt(0).toUpperCase()}
             </div>
@@ -79,7 +79,7 @@ export default function AccountLayout({ children }) {
             </div>
           </div>
 
-          <div className="mb-4 flex flex-wrap gap-1.5">
+          <div className="mb-3 flex flex-wrap gap-1.5 sm:mb-4">
             <VerificationBadge
               kind="Aadhaar"
               verified={account?.profile.aadharVerified}
@@ -94,7 +94,7 @@ export default function AccountLayout({ children }) {
 
           <nav
             aria-label="Account navigation"
-            className="hide-scrollbar -mx-1 flex gap-1 overflow-x-auto lg:mx-0 lg:flex-col lg:overflow-visible"
+            className="hide-scrollbar -mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0"
           >
             {NAV.map((item) => {
               const isActive =
@@ -105,7 +105,7 @@ export default function AccountLayout({ children }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                  className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors sm:text-sm ${
                     isActive
                       ? "bg-orange-50 text-primary"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
